@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-import requests
-from bs4 import BeautifulSoup
 import webbrowser
 import sys
 import datetime
 import html
 import re
+# Rest of the imports not in stdlib
+import requests
+import yaml
+from bs4 import BeautifulSoup
 from pushbullet import Pushbullet
 from tinydb import TinyDB, Query
-User = Query()
-db = TinyDB('/Users/allan/src/boliaSofa/searches.tinydb.json')
 
-with open("urlList.txt") as fid:
-    urlList = [line.strip() for line in fid if line.strip()]
+with open("config.yaml") as fid:
+    cfg = yaml.load(fid)
+
+User = Query()
+db = TinyDB(cfg["dbPath"])
+
 browserUrl = lambda url: url + '&vis=galleri'
 
 
@@ -88,7 +92,7 @@ def updateDatabase(searchResult):
     Update database with new search results, and send a push
     message if there's any new items in the search result.
     """
-    pb = Pushbullet("o.B8s0B7VUNVgrzU4fNpvTjan4VKPO6qhJ")
+    pb = Pushbullet(cfg["pushBulletId"])
     toUpdate = [el for el in searchResult if not db.search(User.itemId == el['itemId'])]
     messageList = list()
     for el in toUpdate:
@@ -104,10 +108,10 @@ def updateDatabase(searchResult):
 
 if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] == 'browse':
-        for url in urlList:
+        for url in cfg["urls"]:
             webbrowser.open(browserUrl(url))
     searchResult = list()
-    for url in urlList:
+    for url in cfg["urls"]:
         s0 = getSoup(url)
         searchResult += extractInfo(s0)
     updateDatabase(searchResult)
