@@ -18,6 +18,32 @@ with open("urlList.txt") as fid:
 browserUrl = lambda url: url + '&vis=galleri'
 
 
+def convertDatestringToDate(inStr):
+    currentYear = datetime.datetime.today().year
+    monthMap = {"jan": 1,
+                "feb": 2,
+                "mar": 3,
+                "apr": 4,
+                "maj": 5,
+                "jun": 6,
+                "jul": 7,
+                "aug": 8,
+                "sep": 9,
+                "okt": 10,
+                "nov": 11,
+                "dec": 12}
+    m = re.match(r'(\d+)\. (\w+)', inStr)
+    if m:
+        d, m = m.groups()
+        return datetime.date(currentYear, monthMap[m], int(d))
+    elif inStr == "I dag":
+        return datetime.date.today()
+    elif inStr == "I går":
+        return datetime.date.today() - datetime.timedelta(days=1)
+    else:
+        return inStr
+
+
 def getSoup(url):
     r = requests.get(url)
     if r.status_code == 200:
@@ -33,7 +59,7 @@ def extractInfo(s0):
         itemId = url.split('/')[-2].replace('id-', '')
         price = el.find('td', title="Pris").text.strip()
         d0 = el.find('td', title="Dato").text.strip()
-        date = datetime.datetime.today().strftime("%d/%m/%Y") if d0 == 'I dag' else d0 + "/" + str(datetime.datetime.today().year)
+        date = convertDatestringToDate(d0)
         # Extract shortened title from <script>
         t0 = el.find("script")
         t1 = t0.contents[0].strip()
