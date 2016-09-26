@@ -54,7 +54,8 @@ if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] == 'browse':
         for url in urlList:
             webbrowser.open(browserUrl(url))
+    searchResult = list()
     for url in urlList:
         s0 = getSoup(url)
-        searchResult = extractInfo(s0)
-        updateDatabase(searchResult)
+        searchResult += extractInfo(s0)
+    updateDatabase(searchResult)
