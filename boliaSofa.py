@@ -6,6 +6,9 @@ from bs4 import BeautifulSoup
 import webbrowser
 import sys
 import datetime
+import html
+import re
+from pushbullet import Pushbullet
 from tinydb import TinyDB, Query
 User = Query()
 db = TinyDB('/Users/allan/src/boliaSofa/searches.tinydb.json')
@@ -19,7 +22,8 @@ urlList = ["http://www.dba.dk/til-boligen/spise-og-dagligstuemoebler/sofaer-og-s
            "http://www.dba.dk/soeg/reg-koebenhavn-og-omegn/?soeg=cigaren+hans+wegner&fra=privat",
            "http://www.dba.dk/til-boligen/spise-og-dagligstuemoebler/sofaborde-og-andre-borde/reg-koebenhavn-og-omegn/?soeg=st%c3%b8bejern&fra=privat",
            "http://www.dba.dk/soeg/reg-koebenhavn-og-omegn/?soeg=hay+bordbukke&fra=privat",
-           "http://www.dba.dk/soeg/reg-koebenhavn-og-omegn/?soeg=hay+loop&fra=privat"]
+           "http://www.dba.dk/soeg/reg-koebenhavn-og-omegn/?soeg=hay+loop&fra=privat",
+           "http://www.dba.dk/computer-og-spillekonsoller/hardware-og-software/tastaturer-og-mus/reg-koebenhavn-og-omegn/?soeg=deathadder&fra=privat&iswildcard"]
 urlList = reversed(urlList)
 browserUrl = lambda url: url + '&vis=galleri'
 
@@ -38,16 +42,30 @@ def extractInfo(s0):
         url = el.find('a', class_="thumbnailContainerInner")['href']
         itemId = url.split('/')[-2].replace('id-', '')
         price = el.find('td', title="Pris").text.strip()
-        date = el.find('td', title="Dato").text.strip() + str(datetime.datetime.today().year)
-        itemList.append({'itemId': itemId, 'url': url, 'date': date, 'price': price})
+        d0 = el.find('td', title="Dato").text.strip()
+        date = datetime.datetime.today().strftime("%d/%m/%Y") if d0 == 'I dag' else d0 + "/" + str(datetime.datetime.today().year)
+        # Extract shortened title from <script>
+        t0 = el.find("script")
+        t1 = t0.contents[0].strip()
+        t2 = [ln.strip() for ln in t1.splitlines() if '"name":' in ln]
+        t3 = t2[0].replace('"name": ', '')
+        t4 = t3.replace('"', '')
+        t5 = t4.rstrip(",")
+        title = html.unescape(re.sub(r'&amp;(?=\#\d+)', r'&', t5))
+        itemList.append({'itemId': itemId, 'url': url, 'date': date, 'price': price, 'title': title})
     return itemList
 
 
 def updateDatabase(searchResult):
-    for el in searchResult:
-        if not db.search(User.itemId == el['itemId']):
-            db.insert(el)
-            webbrowser.open_new_tab(el['url'])
+    pb = Pushbullet("o.B8s0B7VUNVgrzU4fNpvTjan4VKPO6qhJ")
+    toUpdate = [el for el in searchResult if not db.search(User.itemId == el['itemId'])]
+    messageList = list()
+    for el in toUpdate:
+        db.insert(el)
+        webbrowser.open_new_tab(el['url'])
+        messageList.append("{title}\n({date}), {price}\n{url}".format(**el))
+    if messageList:
+        pb.push_note("Nyt fra DBA", "\n\n".join(messageList))
 
 
 if __name__ == '__main__':
