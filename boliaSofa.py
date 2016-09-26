@@ -5,6 +5,7 @@ import webbrowser
 import sys
 import datetime
 import html
+import os
 import re
 # Rest of the imports not in stdlib
 import requests
@@ -13,7 +14,7 @@ from bs4 import BeautifulSoup
 from pushbullet import Pushbullet
 from tinydb import TinyDB, Query
 
-with open("config.yaml") as fid:
+with open(os.path.join(os.path.dirname(__file__), "config.yaml")) as fid:
     cfg = yaml.load(fid)
 
 User = Query()
