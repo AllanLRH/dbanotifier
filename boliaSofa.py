@@ -52,10 +52,13 @@ def updateDatabase(searchResult):
     messageList = list()
     for el in toUpdate:
         db.insert(el)
-        webbrowser.open_new_tab(el['url'])
         messageList.append("{title}\n({date}), {price}\n{url}".format(**el))
     if messageList:
-        pb.push_note("Nyt fra DBA", "\n\n".join(messageList))
+        try:
+            pb.push_note("Nyt fra DBA", "\n\n".join(messageList))
+        except:
+            for el in toUpdate:
+                webbrowser.open_new_tab(el["url"])
 
 
 if __name__ == '__main__':
