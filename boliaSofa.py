@@ -19,6 +19,10 @@ browserUrl = lambda url: url + '&vis=galleri'
 
 
 def convertDatestringToDate(inStr):
+    """
+    Convert date string to datetime.date-object.
+    If not possible, return inStr.
+    """
     currentYear = datetime.datetime.today().year
     monthMap = {"jan": 1,
                 "feb": 2,
@@ -45,6 +49,9 @@ def convertDatestringToDate(inStr):
 
 
 def getSoup(url):
+    """
+    Get webpage specified by url, return result as a BeautifulSoup-object.
+    """
     r = requests.get(url)
     if r.status_code == 200:
         return BeautifulSoup(r.text, 'lxml')
@@ -52,6 +59,10 @@ def getSoup(url):
 
 
 def extractInfo(s0):
+    """
+    Extract relevant info from BeautifulSoup-object (s0).
+    Returns results in a dict.
+    """
     s1 = s0.findAll(class_="dbaListing")
     itemList = list()
     for el in s1:
@@ -73,6 +84,10 @@ def extractInfo(s0):
 
 
 def updateDatabase(searchResult):
+    """
+    Update database with new search results, and send a push
+    message if there's any new items in the search result.
+    """
     pb = Pushbullet("o.B8s0B7VUNVgrzU4fNpvTjan4VKPO6qhJ")
     toUpdate = [el for el in searchResult if not db.search(User.itemId == el['itemId'])]
     messageList = list()
