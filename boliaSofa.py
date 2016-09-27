@@ -98,13 +98,9 @@ def extractInfo(s0):
         logging.debug("Found listing date-string: {}".format(d0))
         date = convertDatestringToDate(d0)
         # Extract shortened title from <script>
-        t0 = el.find("script")
-        t1 = t0.contents[0].strip()
-        t2 = [ln.strip() for ln in t1.splitlines() if '"name":' in ln]
-        t3 = t2[0].replace('"name": ', '')
-        t4 = t3.replace('"', '')
-        t5 = t4.rstrip(",")
-        title = html.unescape(re.sub(r'&amp;(?=\#\d+)', r'&', t5))
+        scriptText = el.find("script").text
+        scriptTextSearch = re.search(r'\s+"name": "([^"]+)",', scriptText, re.MULTILINE)
+        title = html.unescape(re.sub(r'&amp;(?=\#\d+)', r'&', scriptTextSearch.groups()[0]))
         logging.debug("Found listing title: {}".format(title))
         listingDict = {'itemId': itemId, 'url': url, 'date': date, 'price': price, 'title': title}
         itemList.append(listingDict)
