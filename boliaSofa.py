@@ -132,7 +132,7 @@ def updateDatabase(searchResult):
     if messageList:
         logging.info("The following message will be sent: {}".format("\n\n".join(messageList)))
         try:
-            pb.push_note("Nyt fra DBA", "\n\n".join(messageList))
+            pb.push_note("{} nye fra DBA".format(len(toUpdate)), "\n\n".join(messageList))
         except:
             for el in toUpdate:
                 webbrowser.open_new_tab(el["url"])
