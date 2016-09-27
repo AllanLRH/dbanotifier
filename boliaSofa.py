@@ -8,6 +8,7 @@ import html
 import os
 import re
 import logging
+import functools
 # Rest of the imports not in stdlib
 import requests
 import yaml
@@ -29,6 +30,7 @@ db = TinyDB(cfg["dbPath"])
 browserUrl = lambda url: url + '&vis=galleri'
 
 
+@functools.lru_cache()  # Note that logging is not activated when a cached result is returned
 def convertDatestringToDate(inStr):
     """
     Convert date string to datetime.date-object.
