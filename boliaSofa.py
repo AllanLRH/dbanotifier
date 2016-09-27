@@ -18,7 +18,10 @@ from tinydb import TinyDB, Query
 with open(os.path.join(os.path.dirname(__file__), "config.yaml")) as fid:
     cfg = yaml.load(fid)
 
-logging.basicConfig(filename=cfg["logfilePath"], level=logging.INFO)
+logging.basicConfig(filename=cfg["logfilePath"],
+                    level=logging.INFO,
+                    format="%(filename)s:%(lineno)s :: %(funcName)s()\t :: \t%(message)s")
+
 
 User = Query()
 db = TinyDB(cfg["dbPath"])
