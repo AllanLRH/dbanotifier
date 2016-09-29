@@ -16,16 +16,6 @@ from bs4 import BeautifulSoup
 from pushbullet import Pushbullet
 from tinydb import TinyDB, Query
 
-with open(os.path.join(os.path.dirname(__file__), "config.yaml")) as fid:
-    cfg = yaml.load(fid)
-
-logging.basicConfig(filename=cfg["logfilePath"],
-                    level=logging.INFO,
-                    format="%(filename)s:%(lineno)s :: %(funcName)s()\t :: \t%(message)s")
-
-
-User = Query()
-db = TinyDB(cfg["dbPath"])
 
 browserUrl = lambda url: url + '&vis=galleri'
 
@@ -139,11 +129,26 @@ def updateDatabase(searchResult):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2 and sys.argv[1] == 'browse':
+    if len(sys.argv) == 1 or not all([(el.endswith("yml") or el.endswith("yaml")) for el in sys.argv[1:]]):
+        print("Error, you must provide configuration file(s) as argument(s).")
+        sys.exit(1)
+    for cfgFile in sys.argv[1:]:
+
+        with open(os.path.join(os.path.dirname(__file__), cfgFile)) as fid:
+            cfg = yaml.load(fid)
+
+        User = Query()
+        db = TinyDB(cfg["dbPath"])
+
+        logging.basicConfig(filename=cfg["logfilePath"],
+                            level=logging.INFO,
+                            format="%(filename)s:%(lineno)s :: %(funcName)s()\t :: \t%(message)s")
+
+        searchResult = list()
         for url in cfg["urls"]:
-            webbrowser.open(browserUrl(url))
-    searchResult = list()
-    for url in cfg["urls"]:
-        s0 = getSoup(url)
-        searchResult += extractInfo(s0)
-    updateDatabase(searchResult)
+            s0 = getSoup(url)
+            searchResult += extractInfo(s0)
+        updateDatabase(searchResult)
+
+
+
