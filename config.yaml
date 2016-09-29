@@ -1,6 +1,6 @@
-dbPath: /Users/allan/src/boliaSofa/searches.tinydb.json
+dbPath: /Users/allan/src/dbaNotifier/searches.tinydb.json
 pushBulletId: o.B8s0B7VUNVgrzU4fNpvTjan4VKPO6qhJ
-logfilePath: /Users/allan/src/boliaSofa/boliaSofa.log
+logfilePath: /Users/allan/src/dbaNotifier/dbaNotifier.log
 urls: [
   'http://www.dba.dk/til-boligen/spise-og-dagligstuemoebler/sofaer-og-sofagrupper/produkt-chaiselong/stoerrelse-4-pers/reg-koebenhavn-og-omegn/?soeg=bolia&produkt=hjoernesofa&produkt=sofagruppe&stoerrelse=5-pers&stoerrelse=6-pers&fra=privat',
   'http://www.dba.dk/computer-og-spillekonsoller/hardware-og-software/tastaturer-og-mus/?soeg=cherry+mx&fra=privat',
