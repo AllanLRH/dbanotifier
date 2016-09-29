@@ -51,7 +51,7 @@ def convertDatestringToDate(inStr):
                 "nov": 11,
                 "dec": 12}
     try:
-        toReturn = None
+        toReturn = inStr
         m = re.match(r'(\d+)\. (\w+)', inStr)
         if m:
             d, m = m.groups()
@@ -60,11 +60,9 @@ def convertDatestringToDate(inStr):
             toReturn = datetime.date.today()
         elif inStr == "I går":
             toReturn = datetime.date.today() - datetime.timedelta(days=1)
-        else:
-            toReturn = inStr
         if toReturn == inStr:
             logging.critical("Could not convert string '{}' to datetime-object".format(inStr))
-            return toReturn
+        return toReturn
     except Exception as e:
         logging.critical("An error occured when attempting to convert the string '{}' to a datetime-object".format(inStr))
         raise e
