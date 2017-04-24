@@ -83,10 +83,11 @@ def extractInfo(s0):
     for el in s1:
         url = el.find('a', class_="thumbnailContainerInner")['href']
         logging.debug("Found listing url: {}".format(url))
-        itemId = url.split('/')[-2].replace('id-', '')
-        logging.debug("Found listing itemId: {}".format(itemId))
         price = el.find('td', title="Pris").text.strip()
         logging.debug("Found listing price: {}".format(price))
+        itemId = url.split('/')[-2].replace('id-', '')
+        itemId += ('_cost_' + str(price))
+        logging.debug("Found listing itemId: {}".format(itemId))
         d0 = el.find('td', title="Dato").text.strip()
         logging.debug("Found listing date-string: {}".format(d0))
         date = convertDatestringToDate(d0)
@@ -121,7 +122,7 @@ def updateDatabase(searchResult):
         logging.info("The following message will be sent: {}".format("\n\n".join(messageList)))
         try:
             pb.push_note("{} nye fra DBA".format(len(toUpdate)), "\n\n".join(messageList))
-        except:
+        except:  # noqa
             for el in toUpdate:
                 webbrowser.open_new_tab(el["url"])
     else:
