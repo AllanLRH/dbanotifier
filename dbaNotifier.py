@@ -45,11 +45,14 @@ def convertDatestringToDate(inStr):
         m = re.match(r'(\d+)\. (\w+)', inStr)
         if m:
             d, m = m.groups()
-            toReturn = datetime.date(currentYear, monthMap[m], int(d))
+            # Convert to str to be json serializable
+            toReturn = str(datetime.date(currentYear, monthMap[m], int(d)))
         elif inStr == "I dag":
-            toReturn = datetime.date.today()
+            # Convert to str to be json serializable
+            toReturn = str(datetime.date.today())
         elif inStr == "I går":
-            toReturn = datetime.date.today() - datetime.timedelta(days=1)
+            # Convert to str to be json serializable
+            toReturn = str(datetime.date.today() - datetime.timedelta(days=1))
         if toReturn == inStr:
             logging.critical("Could not convert string '{}' to datetime-object".format(inStr))
         return toReturn
@@ -83,11 +86,10 @@ def extractInfo(s0):
     for el in s1:
         url = el.find('a', class_="thumbnailContainerInner")['href']
         logging.debug("Found listing url: {}".format(url))
+        itemId = url.split('/')[-2].replace('id-', '')
+        logging.debug("Found listing itemId: {}".format(itemId))
         price = el.find('td', title="Pris").text.strip()
         logging.debug("Found listing price: {}".format(price))
-        itemId = url.split('/')[-2].replace('id-', '')
-        itemId += ('_cost_' + str(price))
-        logging.debug("Found listing itemId: {}".format(itemId))
         d0 = el.find('td', title="Dato").text.strip()
         logging.debug("Found listing date-string: {}".format(d0))
         date = convertDatestringToDate(d0)
@@ -111,7 +113,19 @@ def updateDatabase(searchResult):
     pb = Pushbullet(cfg["pushBulletId"])
     logging.info("Created pushbullet instance with id {}".format(cfg["pushBulletId"]))
     logging.info("Checking database against {} search results".format(len(searchResult)))
-    toUpdate = [el for el in searchResult if not db.search(User.itemId == el['itemId'])]
+    toUpdate = list()
+    for el in searchResult:
+        res = db.search(User.itemId == el['itemId'])
+        if res:  # The result is in the database
+            if res[0]['price'] != el['price']:
+                logging.info("The result was found the the database, but the price have changed")
+                # If the price have changed, remove it from the database, and append the
+                # updated result
+                db.remove(User.itemId == el['itemId'])
+                toUpdate.append(el)
+        else:  # The result is not in the database
+            logging.info("The result was not found in the databse")
+            toUpdate.append(el)
     logging.info("There was {} new results which will be appended to the database".format(len(toUpdate)))
     logging.debug("The following will be appended to the database: {}".format(toUpdate))
     messageList = list()
@@ -122,8 +136,9 @@ def updateDatabase(searchResult):
         logging.info("The following message will be sent: {}".format("\n\n".join(messageList)))
         try:
             pb.push_note("{} nye fra DBA".format(len(toUpdate)), "\n\n".join(messageList))
-        except:  # noqa
+        except Exception as e:
             for el in toUpdate:
+                logging.critical('An error occured: {}'.format(e))
                 webbrowser.open_new_tab(el["url"])
     else:
         logging.info("No message will be sent")
