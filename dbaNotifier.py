@@ -154,6 +154,9 @@ if __name__ == '__main__':
             cfg = yaml.load(fid)
 
         User = Query()
+        # sys.platform: win32
+        # sys.platform: linux
+        # sys.platform: darwin
         db = TinyDB(cfg["dbPath"])
 
         logging.basicConfig(filename=cfg["logfilePath"],

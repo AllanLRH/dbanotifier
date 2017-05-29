@@ -1,4 +1,7 @@
 dbPath: searches.tinydb.json
+dbPath_linux: searches.tinydb.json
+dbPath_osx: searches.tinydb.json
+dbPath_windows: searches.tinydb.json
 pushBulletId: o.B8s0B7VUNVgrzU4fNpvTjan4VKPO6qhJ
 logfilePath: dbaNotifier.log
 urls: [
