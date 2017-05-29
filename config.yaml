@@ -1,6 +1,6 @@
-dbPath: /Users/allan/src/dbaNotifier/searches.tinydb.json
+dbPath: searches.tinydb.json
 pushBulletId: o.B8s0B7VUNVgrzU4fNpvTjan4VKPO6qhJ
-logfilePath: /Users/allan/src/dbaNotifier/dbaNotifier.log
+logfilePath: dbaNotifier.log
 urls: [
   'http://www.dba.dk/billede-og-lyd/digitale-kameraer/nikon/spejlrefleks/reg-koebenhavn-og-omegn/?soeg=nikon+d7100&fra=privat&medbillede&pris=(1800-8500)',
   'http://www.dba.dk/billede-og-lyd/digitale-kameraer/nikon/spejlrefleks/reg-koebenhavn-og-omegn/?soeg=nikon+d+7100&fra=privat&medbillede&pris=(1800-8500)',
